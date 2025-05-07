@@ -13,6 +13,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
+                    // Ensure docker is properly initialized before use
                     dockerImage = docker.build("${DOCKER_IMAGE}:${IMAGE_TAG}")
                 }
             }
@@ -20,6 +21,7 @@ pipeline {
         stage('Push to Docker Hub') {
             steps {
                 script {
+                    // Ensure docker registry authentication is working
                     docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-credentials') {
                         dockerImage.push('latest')
                         dockerImage.push("${IMAGE_TAG}")
@@ -36,6 +38,14 @@ pipeline {
                     sh 'docker run --rm --name devopsetp-container -d -p 3000:3000 vishal03700/devopsetp:latest'
                 }
             }
+        }
+    }
+    post {
+        success {
+            echo 'Pipeline executed successfully!'
+        }
+        failure {
+            echo 'Pipeline execution failed!'
         }
     }
 }
